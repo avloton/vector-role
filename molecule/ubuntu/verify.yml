@@ -1,0 +1,26 @@
+---
+# This is an example playbook to execute Ansible tests.
+- name: Verify
+  hosts: all
+  gather_facts: false
+  tasks:
+
+  - name: Gather process count
+    ansible.builtin.shell: >
+      set -o pipefail && \
+      ps -e | grep vector | wc -l
+    register: process_count
+    changed_when: false
+
+  - name: Gather validate config
+    ansible.builtin.command: vector validate
+    register: validate_config
+    changed_when: false
+
+  - name: Assert process count
+    ansible.builtin.assert:
+      that: process_count.stdout == '1'
+  
+  - name: Assert validate config
+    ansible.builtin.assert:
+      that: validate_config.rc == 0

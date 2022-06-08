@@ -1,0 +1,28 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+platforms:
+  - name: centos7_molecule
+    image: centos:7
+    dockerfile: ./Dockerfile
+    # pre_build_image: true
+    command: /usr/sbin/init
+    privileged: true
+    capabilities:
+      - SYS_ADMIN
+    tmpfs:
+      - /run
+      - /tmp
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup
+provisioner:
+  name: ansible
+  lint: ansible-lint
+verifier:
+  name: ansible
+#lint: |
+#  yamllint .
+#  ansible-lint
+#  flake8

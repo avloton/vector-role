@@ -1,20 +1,37 @@
 ---
 # tasks file for vector-role
-- name: Get Vector distrib
+- name: Get Vector distrib CentOS
+  when: ansible_distribution == 'CentOS'
   ansible.builtin.get_url:
     url: "https://packages.timber.io/vector/{{ vector_version }}/vector-1.x86_64.rpm"
-    dest: "./vector-1.x86_64.rpm"
+    dest: /tmp/vector-1.x86_64.rpm
     mode: 0664
-- name: Install Vector
+
+- name: Get Vector distrib Ubuntu
+  when: ansible_distribution == 'Ubuntu'
+  ansible.builtin.get_url:
+    url: "https://packages.timber.io/vector/{{ vector_version }}/vector_{{ vector_version }}-1_amd64.deb"
+    dest: /tmp/vector-1.x86_64.deb
+    mode: 0664
+
+- name: Install Vector CentOS
+  when: ansible_distribution == 'CentOS'
   become: true
   ansible.builtin.yum:
-    name:
-      - vector-1.x86_64.rpm
+    name: /tmp/vector-1.x86_64.rpm
   notify: Start Vector
-  changed_when: true
+
+- name: Install Vector Ubuntu
+  when: ansible_distribution == 'Ubuntu'
+  become: true
+  ansible.builtin.apt:
+    deb: /tmp/vector-1.x86_64.deb
+  notify: Start Vector
+
 - name: Vector config template
   become: true
   ansible.builtin.template:
     src: ./templates/vector.j2
     dest: /etc/vector/vector.toml
     mode: 0644
+    
